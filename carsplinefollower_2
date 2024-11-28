@@ -133,7 +133,7 @@ public class CarSplineFollower : MonoBehaviour
         }
 
         // carOffset 범위 제한 (원하는 범위를 설정 가능)
-        carOffset = Mathf.Clamp(carOffset, -15f, 15f); // 예: -3 ~ 3 범위로 제한
+        carOffset = Mathf.Clamp(carOffset, -30f, 30f); // 예: -3 ~ 3 범위로 제한
 
         // skidmarksOffset은 carOffset 값에 따라 움직임 (자동차 기준)
         skidmarksOffset = Mathf.Clamp(skidmarksOffset, -15f, 15f); // 동일한 범위를 사용할 경우
