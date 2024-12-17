@@ -1,0 +1,75 @@
+using UnityEngine;
+
+public class CarController : MonoBehaviour
+{
+    public float moveSpeed = 10f;        // 이동 속도
+    public float turnSpeed = 100f;       // 회전 속도
+    private Rigidbody rb;                // 자동차의 Rigidbody
+    private float targetAngle = 0f;      // 목표 각도
+    private bool isRotating = false;     // 현재 회전 중인지 확인
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();  // Rigidbody 컴포넌트를 가져옴
+    }
+
+    void FixedUpdate()
+    {
+        // 화살표 입력으로 이동
+        float verticalInput = 0f;   // 상하 입력
+
+        // 화살표 키로 상하 이동 (위, 아래)
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            verticalInput = 1f;     // 위쪽 화살표
+        }
+        else if (Input.GetKey(KeyCode.DownArrow))
+        {
+            verticalInput = -1f;    // 아래쪽 화살표
+        }
+
+        // 이동 방향 (X, Z축만 사용하고 Y는 고정)
+        Vector3 moveDirection = transform.forward * verticalInput * moveSpeed * Time.deltaTime;
+
+        // 자동차의 현재 위치를 가져와 Y는 그대로 두고 X, Z만 이동
+        Vector3 currentPosition = rb.position;
+        currentPosition.y = 0f;  // Y값을 고정시킴
+
+        // 이동 처리 (Y값을 고정한 상태에서 X, Z만 업데이트)
+        rb.MovePosition(currentPosition + moveDirection);
+
+        // 옆으로 이동 버튼으로 90도 회전 처리 (한 번만)
+        if (!isRotating && Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            // 왼쪽 화살표를 누르면 목표 각도를 -90도로 설정
+            targetAngle = rb.rotation.eulerAngles.y - 90f;
+            isRotating = true;
+        }
+        else if (!isRotating && Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            // 오른쪽 화살표를 누르면 목표 각도를 +90도로 설정
+            targetAngle = rb.rotation.eulerAngles.y + 90f;
+            isRotating = true;
+        }
+
+        // 회전 처리
+        if (isRotating)
+        {
+            SmoothRotate();
+        }
+    }
+
+    private void SmoothRotate()
+    {
+        float currentAngle = rb.rotation.eulerAngles.y;
+        float newAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, turnSpeed * Time.deltaTime);
+        Quaternion targetRotation = Quaternion.Euler(0f, newAngle, 0f);
+        rb.MoveRotation(targetRotation);
+
+        // 목표 각도에 도달하면 회전 완료
+        if (Mathf.Approximately(newAngle, targetAngle))
+        {
+            isRotating = false;
+        }
+    }
+}
